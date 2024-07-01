@@ -1,0 +1,48 @@
+import os
+import smtplib
+from email.mime.text import MIMEText
+import requests
+import json
+import logging
+
+def send_email(subject, body):
+    sender_email = os.environ['SenderEmail']
+    receiver_email = os.environ['ReceiverEmail']
+    smtp_server = os.environ['SMTPServer']
+    smtp_port = os.environ['SMTPPort']
+    username = os.environ['SMTPUsername']
+    password = os.environ['SMTPPassword']
+
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(username, password)
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+
+def main(event, context):
+    try:
+        # Extract necessary information from the event
+        run_id = event['data']['RunId']
+        notebook_url = event['data']['NotebookUrl']
+        # Call Databricks REST API to get the run status
+        run_status_url = f"{notebook_url}/runs/get?run_id={run_id}"
+        response = requests.get(run_status_url)
+        response.raise_for_status()
+        run_status = response.json()['state']['result_state']
+        # Send email notification if notebook execution fails
+        if run_status == 'FAILED':
+            subject = f"Databricks Notebook Execution Failed - Run ID: {run_id}"
+            body = f"The Databricks notebook execution with Run ID {run_id} has failed. Check the notebook for details."
+            send_email(subject, body)
+            logging.info(f"Email notification sent for failed notebook execution - Run ID: {run_id}")
+        else:
+            logging.info(f"No email notification sent. Notebook execution was successful - Run ID: {run_id}")
+    except Exception as e:
+        logging.error(f"An error occurred: {str(e)}")
+
+# Uncomment the following line if you want to test the function locally
+# main({"data": {"RunId": "your_run_id", "NotebookUrl": "your_notebook_url"}}, {})
