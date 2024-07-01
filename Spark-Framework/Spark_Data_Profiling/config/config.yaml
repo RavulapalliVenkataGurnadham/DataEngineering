@@ -1,0 +1,18 @@
+
+spark:
+  app_name: "PySparkDataProfilingApp"
+  master: "local[*]"
+  config:
+    spark.some.config: "value"
+
+data:
+  input_path: "Spark_Data_Profiling/data/customers-100000.csv"
+  output_path: "Spark_Data_Profiling/data/output_customers-100000.csv"
+  # categorical_columns: ["Country", "Website"]
+  # numeric_columns: ['Customer Id','Phone 1','order_id']
+  # input_path: "C:\\Users\VenkataGurnadhamRavu\\Desktop\Spark_framework_design\\spark_data_profiling\\data\\orders.csv"
+  # output_path: "C:\\Users\VenkataGurnadhamRavu\Desktop\\Spark_framework_design\\spark_data_profiling\\data\\report_orders.csv"
+  # categorical_columns: ["order_status"]
+  # numeric_columns: ['order_id']
+  # numeric_columns: ['order_id']
+ 
